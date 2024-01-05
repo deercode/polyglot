@@ -205,10 +205,12 @@ module Jekyll
       regex = ''
       unless disabled
         @exclude.each do |x|
-          regex += "(?!#{x})"
+          escaped_x = Regexp.escape(x)
+          regex += "(?!#{escaped_x})"
         end
         @languages.each do |x|
-          regex += "(?!#{x}\/)"
+          escaped_x = Regexp.escape(x)
+          regex += "(?!#{escaped_x}\/)"
         end
       end
       start = disabled ? 'ferh' : 'href'
@@ -221,17 +223,19 @@ module Jekyll
     # that all @exclude dirs have a trailing slash.
     def absolute_url_regex(url, disabled = false)
       regex = ''
-      unless disabled
-        @exclude.each do |x|
-          regex += "(?!#{x})"
+        unless disabled
+          @exclude.each do |x|
+            escaped_x = Regexp.escape(x)
+            regex += "(?!#{escaped_x})"
+          end
+          @languages.each do |x|
+            escaped_x = Regexp.escape(x)
+            regex += "(?!#{escaped_x}\/)"
+          end
         end
-        @languages.each do |x|
-          regex += "(?!#{x}\/)"
-        end
+        start = disabled ? 'ferh' : 'href'
+        %r{(?<!hreflang="#{@default_lang}" )#{start}="?#{url}#{@baseurl}/((?:#{regex}[^,'"\s/?.]+\.?)*(?:/[^\]\[)("'\s]*)?)"}
       end
-      start = disabled ? 'ferh' : 'href'
-      %r{(?<!hreflang="#{@default_lang}" )#{start}="?#{url}#{@baseurl}/((?:#{regex}[^,'"\s/?.]+\.?)*(?:/[^\]\[)("'\s]*)?)"}
-    end
 
     def relativize_urls(doc, regex)
       return if doc.output.nil?
